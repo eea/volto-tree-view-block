@@ -67,5 +67,8 @@
     "i18n": "make i18n",
     "cypress:run": "make cypress-run",
     "cypress:open": "make cypress-open"
+  },
+  "dependencies": {
+    "react-complex-tree": "2.6.0"
   }
 }
