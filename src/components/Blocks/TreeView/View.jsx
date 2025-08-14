@@ -12,41 +12,22 @@ import {
 import './treeView.less';
 import 'react-complex-tree/lib/style-modern.css';
 
-function findUnmatchedBrackets(text) {
-  const stack = [];
-  const unmatched = [];
-  for (let i = 0; i < (text || '').length; i++) {
-    const ch = text[i];
-    if (ch === '[') stack.push(i);
-    else if (ch === ']') {
-      if (stack.length) stack.pop();
-      else unmatched.push(i);
-    }
-  }
-  return unmatched.concat(stack);
-}
-
-function cleanupBrackets(name = '') {
-  const unmatched = findUnmatchedBrackets(name);
-  if (unmatched.length > 0) {
-    name = name.replace(']', '$').replace('[', ']').replace('$', '[');
-    name = name.replace('- ', '- [');
-    name = name.replace(' ]', '] ').replace('[ ', ' [').replace(/  +/g, ' ');
-  }
-  return name;
-}
-
 function formatLine(key) {
-  const tt = key.split('$');
-  const codeBeforeDollar = tt[0];
-  const afterDollar = tt[1] || '';
-  const tt2 = codeBeforeDollar.split('_');
-  const shortCode = tt2[1] || codeBeforeDollar;
+  let fullLabel;
+  let id;
+  if (key.includes('$')) {
+    const tt = key.split('$');
+    id = tt[0];
+    const tt2 = id.split('_');
+    const shortId = tt2[1] || id;
+    const name = key.substring(key.indexOf('-') + 1);
+    fullLabel = `${shortId} - ${name}`;
+  } else {
+    id = key.split('-')[0];
+    const name = key.substring(key.indexOf('-') + 1);
+    fullLabel = name;
+  }
 
-  // Combine code + cleaned label
-  const fullLabel = `${shortCode}${cleanupBrackets(afterDollar)}`;
-
-  // Parse into React nodes: text and <i> tags
   const parts = [];
   let buffer = '';
   let inItalics = false;
@@ -74,7 +55,7 @@ function formatLine(key) {
 
   return (
     <a
-      href={`https://biodiversity.europa.eu/habitats/${codeBeforeDollar}`}
+      href={`https://biodiversity.europa.eu/habitats/${id}`}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -142,6 +123,10 @@ const View = ({
       const arrayOfPaths = data['habitat_type_tree'];
       if (arrayOfPaths) {
         setTreeStructure(buildTree(arrayOfPaths));
+        // setTreeStructure(buildTree(["254098 - Chromista (Kingdom)|254100 - Foraminifera (Phylum)|254137 - Polythalamea (Class)|254194 - Buliminida (Order)"]))
+        // setTreeStructure(buildTree(["EUNIS2012_A$AA - Marine habitats|test_A1$A1A1 - Littoral rock and other hard substrata|asd_A1.1$A1.1A1.1 - High energy littoral rock|EUNIS2012_A1.11$A1.11 - Mussel and/or barnacle communities"]));
+        // setTreeStructure(buildTree(["1 - Inland|2 - Terrestrial|3 - Snow "]))
+        // setTreeStructure(buildTree(["EUNIS2012_E$EE - Grasslands and lands dominated by forbs, mosses or lichens|EUNIS2012_E1$E1E1 - Dry grasslands|EUNIS2012_E1.7$E1.7E1.7 - Closed non-Mediterranean dry acid and neutral grassland|EUNIS2012_E1.72$E1.72E1.72 - [Agrostis] - [Festuca] grassland|EUNIS2012_E1.722$E1.722 - Boreo-arctic [Agrostis]-[Festuca] grasslands"]))
       }
     }
   }, [providers_data]);
