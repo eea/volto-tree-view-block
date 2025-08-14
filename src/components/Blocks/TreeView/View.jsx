@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { connectToMultipleProvidersUnfiltered } from '@eeacms/volto-datablocks/hocs';
 import { compose } from 'redux';
