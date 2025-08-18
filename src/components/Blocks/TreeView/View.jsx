@@ -169,7 +169,6 @@ const View = ({
           builtTree,
           expandedItems: new Set(parents),
         });
-        console.log(parents);
       }
     }
   }, [providers_data]);
