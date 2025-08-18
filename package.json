@@ -72,7 +72,7 @@
     "cypress:open": "make cypress-open"
   },
   "dependencies": {
-    "react-complex-tree": "2.6.0",
-    "@eeacms/volto-datablocks": "*"
+    "@eeacms/volto-datablocks": "*",
+    "react-complex-tree": "2.6.0"
   }
 }

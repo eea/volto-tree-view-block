@@ -12,14 +12,38 @@ import {
 import './treeView.less';
 import 'react-complex-tree/lib/style-modern.css';
 
+function getParentIds(items, targetId) {
+  const parents = [];
+  let currentId = targetId;
+
+  while (true) {
+    const scopeCurrentId = currentId;
+    const parentEntry = Object.entries(items).find(([_, item]) =>
+      item?.children?.some(
+        (child) => child.toLowerCase() === scopeCurrentId.toLowerCase(),
+      ),
+    );
+    if (!parentEntry) break;
+    const parentId = parentEntry[0];
+    parents.push(parentId);
+    currentId = parentId;
+  }
+
+  return parents;
+}
+function getShortId(id) {
+  const tt2 = id.split('_');
+  const shortId = tt2[1] || id;
+  return shortId;
+}
+
 function formatLine(key) {
   let fullLabel;
   let id;
   if (key.includes('$')) {
     const tt = key.split('$');
     id = tt[0];
-    const tt2 = id.split('_');
-    const shortId = tt2[1] || id;
+    const shortId = getShortId(id);
     const name = key.substring(key.indexOf('-') + 1);
     fullLabel = `${shortId} - ${name}`;
   } else {
@@ -84,10 +108,9 @@ function buildTree(array) {
       const codeBeforeDollar = part.split('$')[0];
       const nodeId = codeBeforeDollar;
       const isFolder = idx < parts.length - 1;
-
-      if (!items[nodeId]) {
-        items[nodeId] = {
-          index: nodeId,
+      if (!items[getShortId(nodeId)]) {
+        items[getShortId(nodeId)] = {
+          index: getShortId(nodeId),
           canMove: true,
           isFolder,
           children: [],
@@ -96,11 +119,11 @@ function buildTree(array) {
         };
       }
 
-      if (!items[parentId].children.includes(nodeId)) {
-        items[parentId].children.push(nodeId);
+      if (!items[parentId].children.includes(getShortId(nodeId))) {
+        items[parentId].children.push(getShortId(nodeId));
       }
 
-      parentId = nodeId;
+      parentId = getShortId(nodeId);
     });
   });
 
@@ -117,32 +140,44 @@ const View = ({
   ...props
 }) => {
   const [treeStructure, setTreeStructure] = useState();
+  const searchParams = new URLSearchParams(location.search);
   useEffect(() => {
     if (providers_data[Object.keys(providers_data)[0]]) {
       const data = providers_data[Object.keys(providers_data)[0]];
       const arrayOfPaths = data['habitat_type_tree'];
       if (arrayOfPaths) {
-        setTreeStructure(buildTree(arrayOfPaths));
-        // setTreeStructure(buildTree(["254098 - Chromista (Kingdom)|254100 - Foraminifera (Phylum)|254137 - Polythalamea (Class)|254194 - Buliminida (Order)"]))
-        // setTreeStructure(buildTree(["EUNIS2012_A$AA - Marine habitats|test_A1$A1A1 - Littoral rock and other hard substrata|asd_A1.1$A1.1A1.1 - High energy littoral rock|EUNIS2012_A1.11$A1.11 - Mussel and/or barnacle communities"]));
-        // setTreeStructure(buildTree(["1 - Inland|2 - Terrestrial|3 - Snow "]))
-        // setTreeStructure(buildTree(["EUNIS2012_E$EE - Grasslands and lands dominated by forbs, mosses or lichens|EUNIS2012_E1$E1E1 - Dry grasslands|EUNIS2012_E1.7$E1.7E1.7 - Closed non-Mediterranean dry acid and neutral grassland|EUNIS2012_E1.72$E1.72E1.72 - [Agrostis] - [Festuca] grassland|EUNIS2012_E1.722$E1.722 - Boreo-arctic [Agrostis]-[Festuca] grasslands"]))
+        const builtTree = buildTree(arrayOfPaths);
+        const expandedParam = searchParams.get('expanded');
+        const targetIds = expandedParam
+          ? expandedParam.split(',').filter(Boolean) // removes empty strings from ",,"
+          : [];
+        const parents = targetIds.flatMap((id) => getParentIds(builtTree, id));
+        setTreeStructure({
+          builtTree,
+          expandedItems: new Set(parents),
+        });
       }
     }
   }, [providers_data]);
-
   return (
     <div>
       {treeStructure && (
         <UncontrolledTreeEnvironment
           dataProvider={
-            new StaticTreeDataProvider(treeStructure, (item, data) => ({
-              ...item,
-              data,
-            }))
+            new StaticTreeDataProvider(
+              treeStructure.builtTree,
+              (item, data) => ({
+                ...item,
+                data,
+              }),
+            )
           }
           getItemTitle={(item) => item.data}
-          viewState={{}}
+          viewState={{
+            'tree-1': {
+              expandedItems: Array.from(treeStructure.expandedItems),
+            },
+          }}
         >
           <Tree treeId="tree-1" rootItem="root" treeLabel="Tree Example" />
         </UncontrolledTreeEnvironment>
