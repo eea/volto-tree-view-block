@@ -196,12 +196,12 @@ const View = ({
             setTreeStructure((prev) => {
               const newExpanded = new Set(prev.expandedItems);
               newExpanded.add(item.index);
-        
+
               // Update URL
               const params = new URLSearchParams(location.search);
               params.set('expanded', Array.from(newExpanded).join(','));
               history.replace({ search: params.toString() });
-        
+
               return {
                 ...prev,
                 expandedItems: newExpanded,
@@ -212,12 +212,12 @@ const View = ({
             setTreeStructure((prev) => {
               const newExpanded = new Set(prev.expandedItems);
               newExpanded.delete(item.index);
-        
+
               // Update URL
               const params = new URLSearchParams(location.search);
               params.set('expanded', Array.from(newExpanded).join(','));
               history.replace({ search: params.toString() });
-        
+
               return {
                 ...prev,
                 expandedItems: newExpanded,
