@@ -14,18 +14,31 @@ import 'react-complex-tree/lib/style-modern.css';
 
 function getParentIds(items, targetId) {
   const parents = [];
-  let currentId = targetId;
+
+  const trueTargetKey = Object.keys(items).find(
+    (key) => key.toLowerCase() === targetId.toLowerCase(),
+  );
+  if (!trueTargetKey) return parents;
+  let currentId = trueTargetKey;
+  parents.push(currentId);
+  const visited = new Set([currentId]);
 
   while (true) {
-    const scopeCurrentId = currentId;
-    const parentEntry = Object.entries(items).find(([_, item]) =>
-      item?.children?.some(
-        (child) => child.toLowerCase() === scopeCurrentId.toLowerCase(),
-      ),
-    );
+    const idToMatch = currentId.toLowerCase();
+    const parentEntry = Object.entries(items).find(([key, item]) => {
+      if (visited.has(key)) return false;
+      const children = Array.isArray(item?.children)
+        ? item.children.map((c) => c.toLowerCase())
+        : [];
+      const index =
+        typeof item.index === 'string' ? item.index.toLowerCase() : null;
+      return children.includes(idToMatch) || index === idToMatch;
+    });
     if (!parentEntry) break;
+
     const parentId = parentEntry[0];
     parents.push(parentId);
+    visited.add(parentId);
     currentId = parentId;
   }
 
@@ -156,6 +169,7 @@ const View = ({
           builtTree,
           expandedItems: new Set(parents),
         });
+        console.log(parents);
       }
     }
   }, [providers_data]);
@@ -177,6 +191,38 @@ const View = ({
             'tree-1': {
               expandedItems: Array.from(treeStructure.expandedItems),
             },
+          }}
+          onExpandItem={(item, treeId) => {
+            setTreeStructure((prev) => {
+              const newExpanded = new Set(prev.expandedItems);
+              newExpanded.add(item.index);
+        
+              // Update URL
+              const params = new URLSearchParams(location.search);
+              params.set('expanded', Array.from(newExpanded).join(','));
+              history.replace({ search: params.toString() });
+        
+              return {
+                ...prev,
+                expandedItems: newExpanded,
+              };
+            });
+          }}
+          onCollapseItem={(item, treeId) => {
+            setTreeStructure((prev) => {
+              const newExpanded = new Set(prev.expandedItems);
+              newExpanded.delete(item.index);
+        
+              // Update URL
+              const params = new URLSearchParams(location.search);
+              params.set('expanded', Array.from(newExpanded).join(','));
+              history.replace({ search: params.toString() });
+        
+              return {
+                ...prev,
+                expandedItems: newExpanded,
+              };
+            });
           }}
         >
           <Tree treeId="tree-1" rootItem="root" treeLabel="Tree Example" />
