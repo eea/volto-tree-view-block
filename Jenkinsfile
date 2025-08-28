@@ -9,7 +9,7 @@ pipeline {
   environment {
     GIT_NAME = "volto-tree-view-block"
     NAMESPACE = "@eeacms"
-    SONARQUBE_TAGS = "volto.eea.europa.eu,water.europa.eu-freshwater"
+    SONARQUBE_TAGS = "volto.eea.europa.eu,water.europa.eu-freshwater,biodiversity.europa.eu"
     DEPENDENCIES = ""
     BACKEND_PROFILES = "eea.kitkat:testing"
     BACKEND_ADDONS = ""
