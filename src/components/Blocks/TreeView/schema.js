@@ -24,10 +24,14 @@ const schema = {
     {
       id: 'default',
       title: 'Default',
-      fields: ['providers'],
+      fields: ['providers', 'extraPath'],
     },
   ],
   properties: {
+    extraPath: {
+      title: 'Path of items in the tree',
+      description: 'The path to the items in the tree structure',
+    },
     providers: {
       title: 'Providers',
       schema: providerSchema,

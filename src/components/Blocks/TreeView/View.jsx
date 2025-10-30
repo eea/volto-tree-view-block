@@ -50,9 +50,10 @@ function getShortId(id) {
   return shortId;
 }
 
-function formatLine(key) {
+function formatLine(key, extraPath) {
   let fullLabel;
   let id;
+
   if (key.includes('$')) {
     const tt = key.split('$');
     id = tt[0];
@@ -90,18 +91,16 @@ function formatLine(key) {
     parts.push(inItalics ? <i key={parts.length}>{buffer}</i> : buffer);
   }
 
+  const href = extraPath ? `${extraPath}/${id}` : `#`;
+
   return (
-    <a
-      href={`https://biodiversity.europa.eu/habitats/${id}`}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a href={href} target="_blank" rel="noopener noreferrer">
       {parts}
     </a>
   );
 }
 
-function buildTree(array) {
+function buildTree(array, extraPath) {
   const items = {
     root: {
       index: 'root',
@@ -127,7 +126,7 @@ function buildTree(array) {
           canMove: true,
           isFolder,
           children: [],
-          data: formatLine(part),
+          data: formatLine(part, extraPath),
           canRename: true,
         };
       }
@@ -154,12 +153,14 @@ const View = ({
 }) => {
   const [treeStructure, setTreeStructure] = useState();
   const searchParams = new URLSearchParams(location.search);
+  const { extraPath } = data;
+
   useEffect(() => {
     if (providers_data[Object.keys(providers_data)[0]]) {
       const data = providers_data[Object.keys(providers_data)[0]];
       const arrayOfPaths = data['habitat_type_tree'];
       if (arrayOfPaths) {
-        const builtTree = buildTree(arrayOfPaths);
+        const builtTree = buildTree(arrayOfPaths, extraPath);
         const expandedParam = searchParams.get('expanded');
         const targetIds = expandedParam
           ? expandedParam.split(',').filter(Boolean) // removes empty strings from ",,"
