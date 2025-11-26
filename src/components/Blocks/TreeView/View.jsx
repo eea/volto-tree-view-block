@@ -174,8 +174,8 @@ const View = ({
     }
   }, [providers_data]);
   return (
-    <div>
-      {treeStructure && (
+    <div className="block tree-view-block">
+      {treeStructure ? (
         <UncontrolledTreeEnvironment
           dataProvider={
             new StaticTreeDataProvider(
@@ -227,6 +227,10 @@ const View = ({
         >
           <Tree treeId="tree-1" rootItem="root" treeLabel="Tree Example" />
         </UncontrolledTreeEnvironment>
+      ) : (
+        <div className="ui message">
+          <b>Tree View Block</b>Tree is loading or no data available.
+        </div>
       )}
     </div>
   );
