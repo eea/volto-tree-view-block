@@ -157,7 +157,7 @@ const View = ({
   history,
   ...props
 }) => {
-  const [treeStructure, setTreeStructure] = useState(null);
+  const [treeStructure, setTreeStructure] = useState();
   const searchParams = new URLSearchParams(location.search);
   const { extraPath } = data;
 
