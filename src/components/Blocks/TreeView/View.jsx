@@ -120,22 +120,28 @@ function buildTree(array, extraPath) {
       const codeBeforeDollar = part.split('$')[0];
       const nodeId = codeBeforeDollar;
       const isFolder = idx < parts.length - 1;
-      if (!items[getShortId(nodeId)]) {
-        items[getShortId(nodeId)] = {
-          index: getShortId(nodeId),
+      const shortId = getShortId(nodeId);
+
+      if (!items[shortId]) {
+        items[shortId] = {
+          index: shortId,
           canMove: true,
           isFolder,
           children: [],
           data: formatLine(part, extraPath),
           canRename: true,
         };
+      } else {
+        if (isFolder && !items[shortId].isFolder) {
+          items[shortId].isFolder = true;
+        }
       }
 
-      if (!items[parentId].children.includes(getShortId(nodeId))) {
-        items[parentId].children.push(getShortId(nodeId));
+      if (!items[parentId].children.includes(shortId)) {
+        items[parentId].children.push(shortId);
       }
 
-      parentId = getShortId(nodeId);
+      parentId = shortId;
     });
   });
 
