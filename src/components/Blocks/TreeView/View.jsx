@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  connectToMultipleProvidersUnfiltered,
+  //connectToMultipleProvidersUnfiltered,
   connectToMultipleProviders,
 } from '@eeacms/volto-datablocks/hocs';
 import { compose } from 'redux';
