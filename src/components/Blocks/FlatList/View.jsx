@@ -65,7 +65,11 @@ const View = ({
       {parentHabitatIds.length > 0 ? (
         <Segment className="breadcrumbs" attached vertical>
           <Container>
-            <Breadcrumb size="big" as="nav" aria-label={'Habitat Breadcrumbs'}>
+            <Breadcrumb
+              size="large"
+              as="nav"
+              aria-label={'Habitat Breadcrumbs'}
+            >
               <ol aria-label="Habitat Breadcrumbs navigation">
                 {parentHabitatIds.map((item, index) => {
                   const name = item.substring(item.indexOf('-') + 1).trim();
