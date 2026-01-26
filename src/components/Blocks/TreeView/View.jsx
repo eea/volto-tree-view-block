@@ -1,7 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 
-import { connectToMultipleProvidersUnfiltered } from '@eeacms/volto-datablocks/hocs';
+import {
+  //connectToMultipleProvidersUnfiltered,
+  connectToMultipleProviders,
+} from '@eeacms/volto-datablocks/hocs';
 import { compose } from 'redux';
 import { withRouter } from 'react-router-dom';
 import {
@@ -244,7 +247,8 @@ const View = ({
 
 export default compose(
   withRouter,
-  connectToMultipleProvidersUnfiltered((props) => ({
+  connectToMultipleProviders((props) => ({
     providers: props.data.providers,
+    has_data_query_by_context: true,
   })),
 )(View);
