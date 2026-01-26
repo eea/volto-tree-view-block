@@ -7,34 +7,16 @@ import { compose } from 'redux';
 import { withRouter } from 'react-router-dom';
 import './flatListView.less';
 
-function getParentHabitatIds(arrayOfPaths, targetHabitatId) {
-  const parentIds = [];
+function getParentHabitatIds(arrayOfPaths) {
+  const parents = [];
+  const path = arrayOfPaths[0];
+  const parts = path.split('|');
+  parts.forEach((parentString) => {
+    const [uniqueId, name] = parentString.split('-');
+    parents.push(`${uniqueId}-${name}`);
+  });
 
-  for (const path of arrayOfPaths) {
-    const parts = path.split('|');
-    let foundTargetIndex = -1;
-
-    for (let i = 0; i < parts.length; i++) {
-      const habitatId = parts[i].split('$')[0];
-      if (habitatId === targetHabitatId) {
-        foundTargetIndex = i;
-        break;
-      }
-    }
-
-    if (foundTargetIndex !== -1) {
-      for (let i = 0; i < foundTargetIndex; i++) {
-        const parentString = parts[i];
-        const parentId = parentString.split('$')[0];
-        if (!parentIds.find((item) => item.split('$')[0] === parentId)) {
-          parentIds.push(parentString);
-        }
-      }
-      break;
-    }
-  }
-
-  return parentIds;
+  return parents;
 }
 
 const View = ({
@@ -46,23 +28,22 @@ const View = ({
   history,
   ...props
 }) => {
-  const [parentHabitatIds, setParentHabitatIds] = useState([]);
+  const [parentHabitats, setParentHabitats] = useState([]);
   const { extraPath } = data;
   useEffect(() => {
     if (providers_data[Object.keys(providers_data)[0]]) {
       const providerData = providers_data[Object.keys(providers_data)[0]];
       const arrayOfPaths = providerData['habitat_type_tree'];
-      const habitatUniqueId = props.content?.data_query?.[0]?.v[0];
 
-      if (arrayOfPaths && habitatUniqueId) {
-        const parents = getParentHabitatIds(arrayOfPaths, habitatUniqueId);
-        setParentHabitatIds(parents);
+      if (Array.isArray(arrayOfPaths) && arrayOfPaths.length > 0) {
+        const parents = getParentHabitatIds(arrayOfPaths);
+        setParentHabitats(parents);
       }
     }
   }, [providers_data]);
   return (
     <div className="block flat-list-view-block">
-      {parentHabitatIds.length > 0 ? (
+      {parentHabitats.length > 0 ? (
         <Segment className="breadcrumbs" attached vertical>
           <Container>
             <Breadcrumb
@@ -71,12 +52,11 @@ const View = ({
               aria-label={'Habitat Breadcrumbs'}
             >
               <ol aria-label="Habitat Breadcrumbs navigation">
-                {parentHabitatIds.map((item, index) => {
-                  const name = item.substring(item.indexOf('-') + 1).trim();
-                  const id = item.split('$')[0];
+                {parentHabitats.map((item, index) => {
+                  const [id, itemName] = item.split('$');
+                  const name = itemName.trim();
                   const href = extraPath ? `${extraPath}/${id}` : '#';
-                  const isLastItem = index === parentHabitatIds.length - 1;
-
+                  const isLastItem = index === parentHabitats.length - 1;
                   return (
                     <li key={index}>
                       {index > 0 && (
