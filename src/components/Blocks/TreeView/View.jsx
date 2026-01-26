@@ -1,7 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 
-import { connectToMultipleProvidersUnfiltered } from '@eeacms/volto-datablocks/hocs';
+import {
+  //connectToMultipleProvidersUnfiltered,
+  connectToMultipleProviders,
+} from '@eeacms/volto-datablocks/hocs';
 import { compose } from 'redux';
 import { withRouter } from 'react-router-dom';
 import {
@@ -120,22 +123,28 @@ function buildTree(array, extraPath) {
       const codeBeforeDollar = part.split('$')[0];
       const nodeId = codeBeforeDollar;
       const isFolder = idx < parts.length - 1;
-      if (!items[getShortId(nodeId)]) {
-        items[getShortId(nodeId)] = {
-          index: getShortId(nodeId),
+      const shortId = getShortId(nodeId);
+
+      if (!items[shortId]) {
+        items[shortId] = {
+          index: shortId,
           canMove: true,
           isFolder,
           children: [],
           data: formatLine(part, extraPath),
           canRename: true,
         };
+      } else {
+        if (isFolder && !items[shortId].isFolder) {
+          items[shortId].isFolder = true;
+        }
       }
 
-      if (!items[parentId].children.includes(getShortId(nodeId))) {
-        items[parentId].children.push(getShortId(nodeId));
+      if (!items[parentId].children.includes(shortId)) {
+        items[parentId].children.push(shortId);
       }
 
-      parentId = getShortId(nodeId);
+      parentId = shortId;
     });
   });
 
@@ -238,7 +247,8 @@ const View = ({
 
 export default compose(
   withRouter,
-  connectToMultipleProvidersUnfiltered((props) => ({
+  connectToMultipleProviders((props) => ({
     providers: props.data.providers,
+    has_data_query_by_context: true,
   })),
 )(View);
