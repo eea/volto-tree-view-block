@@ -54,7 +54,7 @@ const View = ({
               <ol aria-label="Habitat Breadcrumbs navigation">
                 {parentHabitats.map((item, index) => {
                   const [id, itemName] = item.split('$');
-                  const name = itemName.trim();
+                  const name = itemName?.trim();
                   const href = extraPath ? `${extraPath}/${id}` : '#';
                   const isLastItem = index === parentHabitats.length - 1;
                   return (
