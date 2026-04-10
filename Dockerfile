@@ -4,18 +4,20 @@ FROM plone/frontend-builder:${VOLTO_VERSION}
 
 ARG ADDON_NAME
 ARG ADDON_PATH
+ENV HOST="0.0.0.0"
 
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    apt-get update \
-    && apt-get install --no-install-recommends -y chromium libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev libasound2 \
-    && corepack enable
-
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    npm install -g jest-junit
+# Install Cypress dependencies (matching eeacms/frontend-builder)
+USER root
+RUN apt-get update -q \
+    && apt-get install -qy --no-install-recommends \
+       chromium libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
+    && rm -rf /var/lib/apt/lists/*
+USER node
 
 COPY --chown=node:node ./ /app/src/addons/${ADDON_PATH}/
 
 RUN /setupAddon
+RUN yarn add jest-junit
 RUN yarn install
 
 ENTRYPOINT ["yarn"]
