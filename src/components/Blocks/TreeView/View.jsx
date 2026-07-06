@@ -53,7 +53,7 @@ function getShortId(id) {
   return shortId;
 }
 
-function formatLine(key, extraPath) {
+function formatLine(key, extraPath, linkEnabled = true) {
   let fullLabel;
   let id;
 
@@ -96,14 +96,21 @@ function formatLine(key, extraPath) {
 
   const href = extraPath ? `${extraPath}/${id}` : `#`;
 
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer">
+  return linkEnabled ? (
+    <a
+      className="tree-item-label"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       {parts}
     </a>
+  ) : (
+    <span className="tree-item-label tree-item-label-no-link">{parts}</span>
   );
 }
 
-function buildTree(array, extraPath) {
+function buildTree(array, extraPath, noParentLinks) {
   const items = {
     root: {
       index: 'root',
@@ -131,7 +138,8 @@ function buildTree(array, extraPath) {
           canMove: true,
           isFolder,
           children: [],
-          data: formatLine(part, extraPath),
+          data: '',
+          sourcePart: part,
           canRename: true,
         };
       } else {
@@ -148,6 +156,18 @@ function buildTree(array, extraPath) {
     });
   });
 
+  Object.keys(items).forEach((key) => {
+    if (key !== 'root') {
+      const item = items[key];
+      const hasChildren = item.children.length > 0;
+      item.data = formatLine(
+        item.sourcePart,
+        extraPath,
+        !(noParentLinks && hasChildren),
+      );
+    }
+  });
+
   return items;
 }
 
@@ -162,14 +182,14 @@ const View = ({
 }) => {
   const [treeStructure, setTreeStructure] = useState();
   const searchParams = new URLSearchParams(location.search);
-  const { extraPath } = data;
+  const { extraPath, noParentLinks } = data;
 
   useEffect(() => {
     if (providers_data[Object.keys(providers_data)[0]]) {
       const data = providers_data[Object.keys(providers_data)[0]];
       const arrayOfPaths = data['habitat_type_tree'];
       if (arrayOfPaths) {
-        const builtTree = buildTree(arrayOfPaths, extraPath);
+        const builtTree = buildTree(arrayOfPaths, extraPath, noParentLinks);
         const expandedParam = searchParams.get('expanded');
         const targetIds = expandedParam
           ? expandedParam.split(',').filter(Boolean) // removes empty strings from ",,"
@@ -181,7 +201,7 @@ const View = ({
         });
       }
     }
-  }, [providers_data]);
+  }, [providers_data, extraPath, noParentLinks]);
   return (
     <div className="block tree-view-block">
       {treeStructure ? (

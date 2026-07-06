@@ -1,3 +1,16 @@
-.block.tree-view-block .rct-tree-item-li {
-  font-size: 1rem;
+@type: 'extra';
+@element: 'custom';
+
+@import (multiple, reference, optional) '../../theme.config';
+
+.block.tree-view-block {
+  .rct-tree-item-li {
+    font-size: 1rem;
+  }
+
+  .tree-item-label-no-link {
+    color: @linkColor;
+    cursor: pointer;
+    text-decoration: none;
+  }
 }
