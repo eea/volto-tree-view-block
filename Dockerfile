@@ -17,7 +17,7 @@ USER root
 RUN apt-get update -q \
     && apt-get install -qy --no-install-recommends \
         libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
-      "chromium=${CHROMIUM_VERSION}" \
+    && apt-get install "chromium=${CHROMIUM_VERSION}" \
       "chromium-common=${CHROMIUM_VERSION}"; \
     rm -rf /var/lib/apt/lists/*
 
