@@ -24,7 +24,7 @@ const schema = {
     {
       id: 'default',
       title: 'Default',
-      fields: ['providers', 'extraPath'],
+      fields: ['providers', 'extraPath', 'noParentLinks'],
     },
   ],
   properties: {
@@ -36,6 +36,11 @@ const schema = {
       title: 'Providers',
       schema: providerSchema,
       widget: 'object_list',
+    },
+    noParentLinks: {
+      title: 'Disable links for parent items',
+      description: 'Do not render a link on tree items that have children.',
+      type: 'boolean',
     },
   },
   required: [],
